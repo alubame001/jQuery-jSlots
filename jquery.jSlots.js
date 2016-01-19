@@ -33,6 +33,7 @@
         // --------------------------------------------------------------------- //
 
         $.jSlots.defaultOptions = {
+            resultNumber:"111111",  // Number: number of result
             number : 3,          // Number: number of slots
             winnerNumber : 1,    // Number or Array: list item number(s) upon which to trigger a win, 1-based index, NOT ZERO-BASED
             spinner : '',        // CSS Selector: element to bind the start event to
@@ -128,41 +129,49 @@
         base.Slot.prototype = {
 
             // do one rotation
-            spinEm : function() {
+            spinEm : function(result) {
 
                 var that = this;
 
                 that.$el
                     .css( 'top', -base.listHeight )
                     .animate( { 'top' : '0px' }, that.spinSpeed, 'linear', function() {
-                        that.lowerSpeed();
+                        that.lowerSpeed(result);
                     });
 
             },
 
-            lowerSpeed : function() {
+            lowerSpeed : function(result) {
 
                 this.spinSpeed += base.increment;
                 this.loopCount++;
 
                 if ( this.loopCount < base.options.loops ) {
-
-                    this.spinEm();
+                  //  console.log(this.number)
+                    this.spinEm(this.number);
 
                 } else {
 
-                    this.finish();
+                    this.finish(result);
 
                 }
             },
 
             // final rotation
-            finish : function() {
-
+            finish : function(result) {
+              //  console.log(this)
                 var that = this;
 
                 var endNum = base.randomRange( 1, base.liCount );
 
+               // console.log("endNum:",endNum)
+               // console.log(result)
+                //console.log(base.options.resultNumber)
+               // if (base.options.winnerNumber!= null){
+                //    endNum =base.options.resultNumber
+              //  }
+              // endNum = result
+                if (result != null) { endNum = result}
                 var finalPos = - ( (base.$liHeight * endNum) - base.$liHeight );
                 var finalSpeed = ( (this.spinSpeed * 0.5) * (base.liCount) ) / endNum;
 
@@ -224,11 +233,18 @@
             if ( $.isFunction(base.options.onStart) ) {
                 base.options.onStart();
             }
+            var str = String(base.options.resultNumber);
+                str =$("#jackpot_result").text();
 
             $.each(base.allSlots, function(index, val) {
+                var s = str.substring(index,index+1)
+                var i = parseInt(s)
+                if (i==0){i=10}
+                //console.log(index, val)
+                this.number = i
                 this.spinSpeed = 0;
                 this.loopCount = 0;
-                this.spinEm();
+                this.spinEm(this.number);
             });
 
         };
